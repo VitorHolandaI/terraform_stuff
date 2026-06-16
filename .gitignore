@@ -18,7 +18,7 @@ crash.*.log
 # Secrets / variable files
 *.tfvars
 *.tfvars.json
-!example.tfvars
+!*.tfvars.example
 terraform_vars.tf
 
 # CLI config

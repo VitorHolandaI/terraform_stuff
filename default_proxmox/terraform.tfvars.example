@@ -1,0 +1,6 @@
+# Copy this file to terraform.tfvars and fill in real local values.
+# Never commit terraform.tfvars.
+
+proxmox_api_url   = "https://PROXMOX-IP:8006/"
+proxmox_api_token = "USER@REALM!TOKENID=SECRET"
+vm_password       = "CHANGE_ME"
