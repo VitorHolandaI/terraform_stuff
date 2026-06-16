@@ -1,55 +1,44 @@
-# Proxmox-Terraform
+# terraform_learn
 
-Terraform commands
+Laboratório de estudos de Terraform. Foco em Proxmox (VMs + LXC) e um warm-up com Docker.
 
-#init
-terraform init
+## Estrutura
 
-#plan
-terraform plan -var-file="credentials.auto.tfvars"
+| Pasta | O que provisiona | Provider |
+|-------|------------------|----------|
+| [`proxmox-vms/`](proxmox-vms/) | VMs Proxmox (nginx, wordpress, smb) a partir de template cloud-init | `bpg/proxmox` |
+| [`default_proxmox/`](default_proxmox/) | VM Proxmox — versão organizada (locals/variables/outputs separados) | `bpg/proxmox` |
+| [`lxc/`](lxc/) | Containers LXC Proxmox (nginx, wordpress, smb) | `bpg/proxmox` |
+| [`terraform_labs/lab0/`](terraform_labs/lab0/) | Warm-up: 2 containers Docker locais (sintaxe pura) | `kreuzwerker/docker` |
 
-#apply
-terraform apply -var-file="credentials.auto.tfvars"
+Cada pasta é uma config Terraform independente (state próprio). Rode os comandos **dentro** da pasta.
 
-#apply auto approve
-terraform apply -var-file="credentials.auto.tfvars" -auto-approve
+## Fluxo padrão
 
-#save the plan
-terraform plan -out="proxmox_plan" -var-file="credentials.auto.tfvars"
+```bash
+cd <pasta>
+terraform init                     # baixa provider, cria .terraform/, gera lockfile
+terraform fmt -recursive           # formata
+terraform validate                 # valida sintaxe
+terraform plan                     # mostra o que vai mudar
+terraform apply                    # aplica
+terraform destroy                  # derruba tudo
+```
 
-#apply the save plan
-terraform apply "proxmox_plan"
+Configs Proxmox carregam `credentials.auto.tfvars` automaticamente (sufixo `.auto.tfvars`).
 
-#destroy
-terraform destroy --auto-approve --var-file="credentials.auto.tfvars"
+## Segredos
 
-======================================================================
-Folder Structure:
+Nada de credencial vai pro git. `.gitignore` ignora `*.tfvars`, `*.tfstate*`, `.terraform/` e planos.
 
-You have the following files:
-credentials.auto.tfvars: This file contains your Proxmox API credentials. Since it's an .auto.tfvars file, Terraform automatically loads it without needing to specify it each time.
-providers.tf: This file likely defines your provider configurations (in this case, Proxmox).
-server.tf: This file defines the resources you want to manage, such as the Proxmox virtual machines.
+Para configurar uma pasta Proxmox: copie o template e preencha os valores reais:
 
-How Terraform Knows What to Do:
+```bash
+cp credentials.auto.tfvars.example credentials.auto.tfvars   # depois edite
+```
 
-Terraform reads all .tf files in the current directory. This means providers.tf and server.tf are both processed as part of the configuration.
-The .tf files are processed together, and Terraform combines all the resources, variables, providers, and configurations specified in those files.
+Os arquivos `.example` (rastreados) mostram o formato; os reais (`credentials.auto.tfvars`) ficam só na máquina.
 
-Breakdown:
+## Notas
 
-providers.tf: This defines the Proxmox provider and the credentials, which are supplied via variables. It tells Terraform which platform you're interacting with (Proxmox in this case).
-
-server.tf: This file likely contains the resource definitions, such as creating a VM   
-
-credentials.auto.tfvars: This file contains the values for the variables (proxmox_api_url, proxmox_api_token_id, and proxmox_api_token_secret).
-
-Summary:
-
-When you run terraform plan or terraform apply, Terraform:
-
-Loads all the .tf files (providers.tf, server.tf).
-Automatically pulls in variables from credentials.auto.tfvars.
-Combines everything into a plan and shows you what it will do (e.g., create a Proxmox VM).
-
-So, Terraform knows what to do because it's reading and combining all the .tf files in the directory, along with the variable values from credentials.auto.tfvars.
+- [`notas-proxmox-terraform.md`](notas-proxmox-terraform.md) — anotações de Proxmox + Terraform.
